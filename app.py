@@ -7,6 +7,8 @@ from PIL import Image, ImageDraw, ImageFont
 from io import BytesIO
 import base64
 import logging
+import os
+
 
 logging.basicConfig(level=logging.DEBUG)
 logger = logging.getLogger(__name__)
