@@ -109,6 +109,10 @@ def upload_file():
 
     return f"Infographic saved to: {infographic_path}", 200
 
+@app.route("/test", methods=["GET"])
+def test():
+    logger.debug("Received request to /test")
+    return "Server is up and running!", 200
 
 port = int(os.environ.get("PORT", 10000))
-app.run(host='0.0.0.0', port=port, debug=True)
+app.run(host='0.0.0.0', port=port, debug=False)
