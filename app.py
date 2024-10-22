@@ -3,17 +3,20 @@ matplotlib.use("Agg")
 import pandas as pd
 import matplotlib.pyplot as plt
 from flask import Flask, request, jsonify
+from flask_cors import CORS  # Import CORS
 from PIL import Image, ImageDraw, ImageFont
 from io import BytesIO
 import base64
 import logging
 import os
 
-
 logging.basicConfig(level=logging.DEBUG)
 logger = logging.getLogger(__name__)
 
 app = Flask(__name__)
+
+# Enable CORS for all routes
+CORS(app)
 
 @app.route("/upload", methods=["POST"])
 def upload_file():
