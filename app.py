@@ -1,21 +1,17 @@
-import os
 import matplotlib
-
 matplotlib.use("Agg")
 import pandas as pd
 import matplotlib.pyplot as plt
-from flask import Flask, request, send_file
+from flask import Flask, request, jsonify
 from PIL import Image, ImageDraw, ImageFont
 from io import BytesIO
+import base64
 import logging
 
 logging.basicConfig(level=logging.DEBUG)
 logger = logging.getLogger(__name__)
 
 app = Flask(__name__)
-
-DOWNLOAD_FOLDER = os.path.join(os.path.expanduser("~"), "Downloads")
-
 
 @app.route("/upload", methods=["POST"])
 def upload_file():
@@ -80,6 +76,7 @@ def upload_file():
 
     logger.debug("Visualizations created and saved to buffer")
 
+    # Load the image from the buffer to create an infographic
     chart_img = Image.open(buffer)
     width, height = chart_img.size
 
@@ -102,17 +99,23 @@ def upload_file():
 
     infographic.paste(chart_img, (0, 80))
 
-    infographic_path = os.path.join(DOWNLOAD_FOLDER, "infographic.png")
-    infographic.save(infographic_path)
+    # Save infographic to buffer
+    img_io = BytesIO()
+    infographic.save(img_io, 'PNG')
+    img_io.seek(0)
 
-    logger.debug(f"Infographic saved to: {infographic_path}")
+    # Encode image as base64 for frontend display
+    base64_image = base64.b64encode(img_io.getvalue()).decode('utf-8')
 
-    return f"Infographic saved to: {infographic_path}", 200
+    logger.debug("Returning infographic as base64 encoded string")
+
+    return jsonify({'image': base64_image})
 
 @app.route("/test", methods=["GET"])
 def test():
     logger.debug("Received request to /test")
     return "Server is up and running!", 200
 
-port = int(os.environ.get("PORT", 10000))
-app.run(host='0.0.0.0', port=port, debug=False)
+if __name__ == "__main__":
+    port = int(os.environ.get("PORT", 10000))
+    app.run(host='0.0.0.0', port=port, debug=False)
